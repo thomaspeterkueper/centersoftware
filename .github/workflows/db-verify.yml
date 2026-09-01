@@ -1,0 +1,72 @@
+name: Database verification
+
+on:
+  push:
+    branches:
+      - "db-verify/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.NEON_TEST_DATABASE_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require test database secret
+        shell: bash
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "NEON_TEST_DATABASE_URL is not configured."
+            exit 1
+          fi
+
+      - name: Ensure PostgreSQL client
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          psql --version
+
+      - name: Apply foundation migration
+        shell: bash
+        run: psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f drizzle/0000_initial_foundation.sql
+
+      - name: Apply authorization seed
+        shell: bash
+        run: psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f drizzle/0001_seed_authorization.sql
+
+      - name: Verify schemas and tables
+        shell: bash
+        run: |
+          schema_count=$(psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c "select count(*) from information_schema.schemata where schema_name in ('auth','app');")
+          table_count=$(psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c "select count(*) from information_schema.tables where table_schema in ('auth','app') and table_type = 'BASE TABLE';")
+
+          test "$schema_count" = "2"
+          test "$table_count" = "10"
+
+      - name: Verify authorization seed
+        shell: bash
+        run: |
+          permission_count=$(psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c 'select count(*) from app.permission;')
+          role_count=$(psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c 'select count(*) from app.role;')
+          owner_permission_count=$(psql "$DATABASE_URL" -X -At -v ON_ERROR_STOP=1 -c "select count(*) from app.role_permission rp join app.role r on r.id = rp.role_id where r.key = 'owner';")
+
+          test "$permission_count" = "13"
+          test "$role_count" = "4"
+          test "$owner_permission_count" = "13"
+
+      - name: Verify migration is idempotent
+        shell: bash
+        run: |
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f drizzle/0000_initial_foundation.sql
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f drizzle/0001_seed_authorization.sql
