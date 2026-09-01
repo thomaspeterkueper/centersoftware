@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   migrate-production:
-    if: github.repository == 'thomaspeterkueper/centersoftware' && github.actor == 'thomaspeterkueper'
+    if: github.event.created == false && github.repository == 'thomaspeterkueper/centersoftware' && github.actor == 'thomaspeterkueper'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
