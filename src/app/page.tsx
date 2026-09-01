@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const foundation = [
   ["Datenbank", "PostgreSQL auf Neon"],
   ["ORM", "Drizzle + versionierte Migrationen"],
@@ -11,13 +13,21 @@ export default function Home() {
   return (
     <main className="shell">
       <section className="hero">
-        <p className="eyebrow">FOUNDATION / 0.1</p>
+        <p className="eyebrow">FOUNDATION / 0.2</p>
         <h1>Centersoftware</h1>
         <p className="lead">
           Neu aufgebaut als portable, PostgreSQL-zentrierte Anwendung. Neon liefert die
           Infrastruktur; Datenmodell, Authentifizierung und Fachlogik bleiben unter unserer
           Kontrolle.
         </p>
+        <div className="actions">
+          <Link className="button primary" href="/sign-in">
+            Anmelden
+          </Link>
+          <Link className="button" href="/dashboard">
+            Dashboard
+          </Link>
+        </div>
       </section>
 
       <section className="grid" aria-label="Technische Grundlage">
