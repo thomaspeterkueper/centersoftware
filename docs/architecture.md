@@ -2,9 +2,11 @@
 
 ## Status
 
-Foundation v0.2. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
+Foundation v0.3. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
 
 Das detaillierte fachliche Datenbank-Zielbild wird separat gepflegt: [`docs/database-model.md`](./database-model.md).
+
+Das Akzeptanzkern-Modell fuer Ticketsystem und Inventarverwaltung wird vertieft in [`docs/tickets-inventory-model.md`](./tickets-inventory-model.md).
 
 ## 1. Leitentscheidung
 
@@ -68,7 +70,7 @@ user
                       -> permission
 ```
 
-Permission Keys sind stabile fachliche Bezeichner wie `people.read` oder `appointments.manage`. UI-Texte oder Menuepunkte sind keine Berechtigungen.
+Permission Keys sind stabile fachliche Bezeichner wie `people.read`, `tickets.manage` oder `inventory.read`. UI-Texte oder Menuepunkte sind keine Berechtigungen.
 
 ## 6. Migrationen
 
@@ -99,7 +101,31 @@ Nicht vertrauenswuerdige Eingaben werden an der Anwendungsgrenze mit Zod validie
 
 PostgreSQL RLS kann spaeter als zusaetzliche Defense-in-Depth-Schicht eingesetzt werden; die Fachautorisierung bleibt trotzdem expliziter Anwendungscode.
 
-## 9. Aktueller Stand und naechste technische Schritte
+## 9. Akzeptanzkern
+
+Die erste fachliche Ausbauphase wird nicht nur nach Datenmodell-Abhaengigkeiten, sondern nach betrieblichem Nutzen priorisiert.
+
+**Grundakzeptanz entsteht durch drei eng gekoppelte Bereiche:**
+
+1. **People / Staff / Locations** als gemeinsame Referenzdaten.
+2. **Inventarverwaltung** fuer reale Betriebsmittel, Standorte und Zuordnungen.
+3. **Ticketsystem** fuer Stoerungen, Aufgaben und Anforderungen mit direkter Asset-Verknuepfung.
+
+Damit kann die Centersoftware frueh einen vollstaendigen betrieblichen Ablauf abbilden:
+
+```text
+Mitarbeiter meldet Problem
+  -> Ticket
+  -> betroffenes Asset
+  -> Standort / Verantwortlicher
+  -> Bearbeitung + Kommentare + Historie
+  -> Loesung
+  -> Assethistorie bleibt erhalten
+```
+
+Appointments und Documents bleiben wichtige Kernmodule, sollen den ersten sichtbaren Nutzen von Ticketing und Inventar aber nicht blockieren.
+
+## 10. Aktueller Stand und naechste technische Schritte
 
 Bereits umgesetzt:
 
@@ -108,5 +134,16 @@ Bereits umgesetzt:
 3. Initiales Center und Owner-Mitgliedschaft.
 4. Serverseitige Permission-Pruefung.
 5. Geplanter Datenbankausbau als separates Zielbild dokumentiert.
+6. Ticketing- und Inventarmodell als Akzeptanzkern konkretisiert.
 
-Als Naechstes folgen die ersten Fachmodule auf dieser Grundlage, voraussichtlich **People & Staff**, danach **Appointments** und **Documents**. Die jeweilige Migration soll sich am Datenbank-Zielbild orientieren, aber erst nach Klaerung der konkreten Fachanforderungen kanonisch werden.
+Naechste fachliche Reihenfolge:
+
+1. **People / Staff / Locations – Minimum Core**
+2. **Inventory – Minimum Viable Core**
+3. **Tickets – Minimum Viable Core**
+4. gemeinsame Ticket-/Asset-Oberflaechen und Suche
+5. **Documents**
+6. **Appointments**
+7. Inventur, Wartung und weitere betriebliche Erweiterungen
+
+Die ersten drei Schritte sollen bewusst nicht als isolierte Datenbankmigrationen enden, sondern jeweils bis zu einer nutzbaren UI vertikal umgesetzt werden.
