@@ -2,11 +2,13 @@
 
 ## Status
 
-Foundation v0.3. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
+Foundation v0.4. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
 
 Das detaillierte fachliche Datenbank-Zielbild wird separat gepflegt: [`docs/database-model.md`](./database-model.md).
 
 Das Akzeptanzkern-Modell fuer Ticketsystem und Inventarverwaltung wird vertieft in [`docs/tickets-inventory-model.md`](./tickets-inventory-model.md).
+
+Ticketgeber, Abteilungen und Pool-/Queue-Routing werden verbindlich fuer den Ticket Core in [`docs/ticket-routing-model.md`](./ticket-routing-model.md) praezisiert. Dieses Routing-Zielbild ersetzt fuer diesen Punkt aeltere Planungsannahmen, nach denen Teams oder Queues erst spaeter eingefuehrt werden sollten.
 
 ## 1. Leitentscheidung
 
@@ -107,20 +109,28 @@ Die erste fachliche Ausbauphase wird nicht nur nach Datenmodell-Abhaengigkeiten,
 
 **Grundakzeptanz entsteht durch drei eng gekoppelte Bereiche:**
 
-1. **People / Staff / Locations** als gemeinsame Referenzdaten.
+1. **People / Staff / Locations / Departments** als gemeinsame Referenz- und Organisationsdaten.
 2. **Inventarverwaltung** fuer reale Betriebsmittel, Standorte und Zuordnungen.
-3. **Ticketsystem** fuer Stoerungen, Aufgaben und Anforderungen mit direkter Asset-Verknuepfung.
+3. **Ticketsystem** fuer Stoerungen, Aufgaben und Anforderungen mit direkter Asset-Verknuepfung und Abteilungs-Pools.
+
+Dabei gelten fuer das Ticketmodell zwei feste Regeln:
+
+- **Ticketgeber, erstellender Benutzer und betroffene Person sind getrennte Rollen.** Ein Ticket kann ausdruecklich im Auftrag einer Drittperson bzw. fuer eine andere Person erfasst werden.
+- **Abteilungstickets werden ueber einen Ticket-Pool / eine Queue geroutet.** Ein Ticket darf regulär im Pool liegen, ohne bereits einer einzelnen Person zugewiesen zu sein.
 
 Damit kann die Centersoftware frueh einen vollstaendigen betrieblichen Ablauf abbilden:
 
 ```text
-Mitarbeiter meldet Problem
-  -> Ticket
-  -> betroffenes Asset
-  -> Standort / Verantwortlicher
+Ticketgeber / Drittperson
+  -> Ticket wird erfasst
+  -> betroffene Person / betroffenes Asset
+  -> Zielabteilung
+  -> Ticket-Pool
+  -> noch unzugewiesen oder persoenlich uebernommen
   -> Bearbeitung + Kommentare + Historie
+  -> ggf. Poolwechsel
   -> Loesung
-  -> Assethistorie bleibt erhalten
+  -> Ticket- und Assethistorie bleiben erhalten
 ```
 
 Appointments und Documents bleiben wichtige Kernmodule, sollen den ersten sichtbaren Nutzen von Ticketing und Inventar aber nicht blockieren.
@@ -135,12 +145,13 @@ Bereits umgesetzt:
 4. Serverseitige Permission-Pruefung.
 5. Geplanter Datenbankausbau als separates Zielbild dokumentiert.
 6. Ticketing- und Inventarmodell als Akzeptanzkern konkretisiert.
+7. Drittpersonen als Ticketgeber sowie Abteilungs-Pools/Queues als Bestandteil des Ticket Core festgelegt.
 
 Naechste fachliche Reihenfolge:
 
-1. **People / Staff / Locations – Minimum Core**
+1. **People / Staff / Locations / Departments – Minimum Core**
 2. **Inventory – Minimum Viable Core**
-3. **Tickets – Minimum Viable Core**
+3. **Tickets inkl. Reporter + Queue/Pool – Minimum Viable Core**
 4. gemeinsame Ticket-/Asset-Oberflaechen und Suche
 5. **Documents**
 6. **Appointments**
