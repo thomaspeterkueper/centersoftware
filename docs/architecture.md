@@ -2,7 +2,9 @@
 
 ## Status
 
-Foundation v0.1. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
+Foundation v0.2. Diese Datei beschreibt die technischen Grenzen, die beim Neuaufbau nicht versehentlich aufgeweicht werden sollen.
+
+Das detaillierte fachliche Datenbank-Zielbild wird separat gepflegt: [`docs/database-model.md`](./database-model.md).
 
 ## 1. Leitentscheidung
 
@@ -79,7 +81,8 @@ Schema in TypeScript aendern
  -> npm run db:generate
  -> SQL-Migration pruefen
  -> Migration committen
- -> npm run db:migrate
+ -> auf Testbranch anwenden und verifizieren
+ -> kontrolliert auf Produktion anwenden
 ```
 
 ## 7. Validierung
@@ -96,11 +99,14 @@ Nicht vertrauenswuerdige Eingaben werden an der Anwendungsgrenze mit Zod validie
 
 PostgreSQL RLS kann spaeter als zusaetzliche Defense-in-Depth-Schicht eingesetzt werden; die Fachautorisierung bleibt trotzdem expliziter Anwendungscode.
 
-## 9. Naechste technische Schritte
+## 9. Aktueller Stand und naechste technische Schritte
 
-1. Neon-Projekt und Entwicklungsdatenbank anlegen.
-2. Erste Migration generieren und anwenden.
-3. Login/Logout und Session-Guard implementieren.
-4. Initiales Center und Owner-Mitgliedschaft seeden.
-5. Serverseitige Permission-Pruefung implementieren.
-6. Erstes Fachmodul auf dieser Grundlage bauen.
+Bereits umgesetzt:
+
+1. Neon/PostgreSQL-Foundation und produktive Initialmigration.
+2. Better Auth mit Login/Logout und Session-Guard.
+3. Initiales Center und Owner-Mitgliedschaft.
+4. Serverseitige Permission-Pruefung.
+5. Geplanter Datenbankausbau als separates Zielbild dokumentiert.
+
+Als Naechstes folgen die ersten Fachmodule auf dieser Grundlage, voraussichtlich **People & Staff**, danach **Appointments** und **Documents**. Die jeweilige Migration soll sich am Datenbank-Zielbild orientieren, aber erst nach Klaerung der konkreten Fachanforderungen kanonisch werden.
